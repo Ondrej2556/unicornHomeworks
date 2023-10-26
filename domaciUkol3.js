@@ -71,8 +71,7 @@ const getBirthDate = (min, max) => {
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 
-  const isoDate = new Date(randomYear, randomMonth, randomDay).toISOString();
-  return isoDate;
+  return new Date(randomYear, randomMonth, randomDay).toISOString();
 };
 
 const getGender = () => {
