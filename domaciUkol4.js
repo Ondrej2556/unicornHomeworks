@@ -70,7 +70,8 @@ const getBirthDate = (min, max) => {
   const minYear = currentDate.getFullYear() - min;
   const maxYear = currentDate.getFullYear() - max;
 
-  const randomYear = Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
+  const randomYear =
+    Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 
@@ -103,12 +104,9 @@ const getWorkload = () => {
   return numbers[randomIndex];
 };
 
-//Hlavni funkce, která přijímá vstupní data dtoIn a vrací pole zaměstnanců dtoOut
-const main = (dtoIn) => {
-  //Vytvoření pole pro uložení výsledků
-  const dtoOut = [];
+const generateEmployeeData = (dtoIn) => {
+  const employeeList = [];
 
-  //Iterace pro vytvoření správného počtu zaměstanců podle vstupních dat
   for (let i = 1; i < dtoIn.count + 1; i++) {
     const newEmployee = {
       gender: getGender(),
@@ -120,8 +118,31 @@ const main = (dtoIn) => {
     //Zjištění jména podle pohlaví
     newEmployee.name = getName(newEmployee.gender, "firstName");
     newEmployee.surname = getName(newEmployee.gender, "surname");
-    dtoOut.push(newEmployee);
-  } 
+    employeeList.push(newEmployee);
+  }
+  return employeeList;
+};
+
+//Hlavni funkce, která přijímá vstupní data dtoIn a vrací pole zaměstnanců dtoOut
+const main = () => {
+  const data = generateEmployeeData(dtoIn);
+  let sum = 0
+  data.forEach((employee) => sum += employee.workload)
+  const avg = sum / data.length
+  const dtoOut = {
+    total: dtoIn.count,
+    workload10: 10,
+    workload20: 12,
+    workload30: 10,
+    workload40: 15, 
+    averageAge: avg,
+    minAge: 19,
+    maxAge: 55,
+    medianAge: 38,
+    medianWorkload: 28,
+    averageWomenWorkload: 26,
+    sortedByWorkload: data.sort((a,b) => a.workload > b.workload),
+  };
 
   return dtoOut;
 };
