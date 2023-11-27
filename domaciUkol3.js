@@ -70,7 +70,7 @@ const getBirthDate = (min, max) => {
   const minYear = currentDate.getFullYear() - min;
   const maxYear = currentDate.getFullYear() - max;
 
-  const randomYear = Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
+  const randomYear = Math.floor(Math.random() * (maxYear - minYear + 2)) + minYear;
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 

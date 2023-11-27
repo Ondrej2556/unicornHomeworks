@@ -1,3 +1,18 @@
+// počet zaměstnanců
+// počet zaměstnanců podle výše úvazku (10, 20, 30 a 40h/týdně)
+// ----
+// průměrný věk (zaokrouhleno na jedno desetinné místo)
+// minimální věk (nejmladší zaměstnanec)
+// maximální věk (nejstarší zaměstnanec)
+// medián věku
+//-------------
+// medián výše úvazku
+// průměrnou výši úvazku v rámci žen
+// seznam zaměstanců setříděných dle výše úvazku od nejmenšího po největší
+//--------
+// Váš program bude obsahovat funkci main s jedním argumentem, který bude obsahovat vstupní data dtoIn.
+// V rámci funkce main byste měli volat funkci generateEmployeeData s dtoIn, která zajistí vygenerování seznamu a pak funkci getEmployeeStatistics, která zajistí zjištění potřebných hodnot ze seznamu zaměstnanců. Funkce main bude vracet výstupní data dtoOut.
+
 //Sample data
 const maleNames = [
   { firstName: "Jan", surname: "Kovář" },
@@ -62,16 +77,15 @@ const dtoIn = {
     max: 65,
   },
 };
+const currentDate = new Date();
 
 //Funkce pro výpočet data narození
 const getBirthDate = (min, max) => {
-  const currentDate = new Date();
-
   const minYear = currentDate.getFullYear() - min;
   const maxYear = currentDate.getFullYear() - max;
 
   const randomYear =
-    Math.floor(Math.random() * (maxYear - minYear + 1)) + minYear;
+    Math.floor(Math.random() * (maxYear - minYear - 1)) + minYear + 1;
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 
@@ -104,6 +118,15 @@ const getWorkload = () => {
   return numbers[randomIndex];
 };
 
+const getMedian = (array) => {
+  array.sort((a, b) => a - b);
+  const midValue = Math.floor(array.length / 2);
+
+  return array.length % 2 !== 0
+    ? array[midValue]
+    : (array[midValue - 1] + array[midValue]) / 2;
+};
+
 const generateEmployeeData = (dtoIn) => {
   const employeeList = [];
 
@@ -123,26 +146,86 @@ const generateEmployeeData = (dtoIn) => {
   return employeeList;
 };
 
+const getEmployeeStatistics = (data) => {
+  let minAge = 0,
+    maxAge = 0,
+    averageAge = 0,
+    medianAge = 0,
+    medianWorkload = 0,
+    averageWomenWorkload = 0,
+    ageSum = 0,
+    workloadWomanSum = 0,
+    womanCount = 0,
+    workloadsCount = { 10: 0, 20: 0, 30: 0, 40: 0 };
+
+  const medianAgeArray = [],
+    medianWorkloadArray = [];
+
+    data.forEach((employee, i) => {
+    const employeeAge = currentDate.getFullYear() - Number(employee.birthDate.substring(0, 4));
+
+    medianAgeArray.push(employeeAge);
+    medianWorkloadArray.push(employee.workload);
+
+    if (employee.gender === "female") {
+      workloadWomanSum += employee.workload;
+      womanCount += 1;
+    }
+
+    if (i === 0 || minAge > employeeAge) minAge = employeeAge;
+    if (i === 0 || maxAge < employeeAge) maxAge = employeeAge;
+
+    ageSum += employeeAge;
+
+    if (i === data.length - 1) {
+      averageAge = Math.floor((ageSum / data.length) * 10) / 10;
+      averageWomenWorkload = Math.floor(workloadWomanSum / womanCount);
+    }
+
+    workloadsCount[employee.workload] += 1;
+  });
+
+  medianAge = getMedian(medianAgeArray);
+  medianWorkload = getMedian(medianWorkloadArray);
+
+  //Sum up age of every employee in the array. Then get average, min and max.
+  return {
+    workload10: workloadsCount[10],
+    workload20: workloadsCount[20],
+    workload30: workloadsCount[30],
+    workload40: workloadsCount[40],
+    averageAge,
+    minAge,
+    maxAge,
+    medianAge,
+    medianWorkload,
+    averageWomenWorkload,
+    sortedByWorkload: data.sort((a,b)=> a.workload - b.workload)
+  };
+};
+
 //Hlavni funkce, která přijímá vstupní data dtoIn a vrací pole zaměstnanců dtoOut
 const main = () => {
-  const data = generateEmployeeData(dtoIn);
-  let sum = 0
-  data.forEach((employee) => sum += employee.workload)
-  const avg = sum / data.length
   const dtoOut = {
     total: dtoIn.count,
-    workload10: 10,
-    workload20: 12,
-    workload30: 10,
-    workload40: 15, 
-    averageAge: avg,
-    minAge: 19,
-    maxAge: 55,
-    medianAge: 38,
-    medianWorkload: 28,
-    averageWomenWorkload: 26,
-    sortedByWorkload: data.sort((a,b) => a.workload > b.workload),
+    workload10: null,
+    workload20: null,
+    workload30: null,
+    workload40: null,
+    averageAge: null,
+    minAge: null,
+    maxAge: null,
+    medianAge: null,
+    medianWorkload: null,
+    averageWomenWorkload: null,
+    sortedByWorkload: null,
   };
+
+  const data = generateEmployeeData(dtoIn);
+
+  const employeeStatistics = getEmployeeStatistics(data);
+
+ Object.assign(dtoOut, employeeStatistics)
 
   return dtoOut;
 };
