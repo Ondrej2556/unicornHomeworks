@@ -84,8 +84,7 @@ const getBirthDate = (min, max) => {
   const minYear = currentDate.getFullYear() - min;
   const maxYear = currentDate.getFullYear() - max;
 
-  const randomYear =
-    Math.floor(Math.random() * (maxYear - minYear - 1)) + minYear + 1;
+  const randomYear = Math.floor(Math.random() * (maxYear - minYear - 1)) + minYear + 1;
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 
@@ -101,14 +100,14 @@ const getGender = () => {
 
 //Funkce pro generování jména podle pohlaví
 const getName = (gender, type) => {
-  const firstNameIndex =
+  const nameIndex =
     gender === "male"
       ? Math.floor(Math.random() * maleNames.length)
       : Math.floor(Math.random() * femaleNames.length);
 
   return gender === "male"
-    ? maleNames[firstNameIndex][type]
-    : femaleNames[firstNameIndex][type];
+    ? maleNames[nameIndex][type]
+    : femaleNames[nameIndex][type];
 };
 
 //Funkce pro generování náhodného pracovního úvazku
@@ -118,6 +117,7 @@ const getWorkload = () => {
   return numbers[randomIndex];
 };
 
+//Funkce pro generování mediánu
 const getMedian = (array) => {
   array.sort((a, b) => a - b);
   const midValue = Math.floor(array.length / 2);
@@ -127,6 +127,7 @@ const getMedian = (array) => {
     : (array[midValue - 1] + array[midValue]) / 2;
 };
 
+//Funkce pro generování seznamu zaměstnanců
 const generateEmployeeData = (dtoIn) => {
   const employeeList = [];
 
@@ -146,6 +147,7 @@ const generateEmployeeData = (dtoIn) => {
   return employeeList;
 };
 
+//Funkce pro generování statitisk seznamu zaměstnanců
 const getEmployeeStatistics = (data) => {
   let minAge = 0,
     maxAge = 0,
@@ -158,12 +160,13 @@ const getEmployeeStatistics = (data) => {
     womanCount = 0,
     workloadsCount = { 10: 0, 20: 0, 30: 0, 40: 0 };
 
-  const medianAgeArray = [],
-    medianWorkloadArray = [];
+  const medianAgeArray = [], medianWorkloadArray = [];
 
     data.forEach((employee, i) => {
-    const employeeAge = currentDate.getFullYear() - Number(employee.birthDate.substring(0, 4));
+    const employeeAge = currentDate.getFullYear() - Number(employee.birthDate.split("-", 1));
+    
 
+    ageSum += employeeAge;
     medianAgeArray.push(employeeAge);
     medianWorkloadArray.push(employee.workload);
 
@@ -172,11 +175,12 @@ const getEmployeeStatistics = (data) => {
       womanCount += 1;
     }
 
+    //Výpočet minimálního a maximálního věku, pokud jede cyklus poprvé, tak se hodnota přiřadí
     if (i === 0 || minAge > employeeAge) minAge = employeeAge;
     if (i === 0 || maxAge < employeeAge) maxAge = employeeAge;
 
-    ageSum += employeeAge;
 
+    //Pro poslení projití cyklu se vypočítají průměry
     if (i === data.length - 1) {
       averageAge = Math.floor((ageSum / data.length) * 10) / 10;
       averageWomenWorkload = Math.floor(workloadWomanSum / womanCount);
@@ -184,11 +188,11 @@ const getEmployeeStatistics = (data) => {
 
     workloadsCount[employee.workload] += 1;
   });
+  
 
   medianAge = getMedian(medianAgeArray);
   medianWorkload = getMedian(medianWorkloadArray);
 
-  //Sum up age of every employee in the array. Then get average, min and max.
   return {
     workload10: workloadsCount[10],
     workload20: workloadsCount[20],
@@ -225,7 +229,7 @@ const main = () => {
 
   const employeeStatistics = getEmployeeStatistics(data);
 
- Object.assign(dtoOut, employeeStatistics)
+  Object.assign(dtoOut, employeeStatistics)
 
   return dtoOut;
 };
