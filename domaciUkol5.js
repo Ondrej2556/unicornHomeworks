@@ -1,17 +1,17 @@
-// počet zaměstnanců
-// počet zaměstnanců podle výše úvazku (10, 20, 30 a 40h/týdně)
-// ----
-// průměrný věk (zaokrouhleno na jedno desetinné místo)
-// minimální věk (nejmladší zaměstnanec)
-// maximální věk (nejstarší zaměstnanec)
-// medián věku
-//-------------
-// medián výše úvazku
-// průměrnou výši úvazku v rámci žen
-// seznam zaměstanců setříděných dle výše úvazku od nejmenšího po největší
-//--------
-// Váš program bude obsahovat funkci main s jedním argumentem, který bude obsahovat vstupní data dtoIn.
-// V rámci funkce main byste měli volat funkci generateEmployeeData s dtoIn, která zajistí vygenerování seznamu a pak funkci getEmployeeStatistics, která zajistí zjištění potřebných hodnot ze seznamu zaměstnanců. Funkce main bude vracet výstupní data dtoOut.
+/** 
+ * Navrhněte a vytvořte v programovacím jazyce JavaScript program, který naváže na Nedostatečné oprávnění - 
+ * generování seznam zaměstnanců firmy. Rozšiřte váš program tak, že na základě vygenerovaného seznamu zjistíte nejčastější 
+ * křestní jména v rámci: 
+ *  všech zaměstnanců
+    žen
+    mužů
+    žen na zkrácený úvazek (tj. 10, 20 či 30h/týdně)
+    mužů na plný pracovní úvazek (tj. 40h/týdně)
+Váš program bude obsahovat funkci main s jedním argumentem, který bude obsahovat vstupní data dtoIn. 
+V rámci funkce main byste měli volat funkci generateEmployeeData, která zajistí vygenerování seznamu a 
+pak funkci getEmployeeChartContent, která zajistí zjištění potřebných hodnot ze seznamu zaměstnanců. 
+Funkce main bude vracet výstupní data dtoOut.
+ */
 
 //Sample data
 const maleNames = [
@@ -71,7 +71,7 @@ const femaleNames = [
 
 //Vstupní data
 const dtoIn = {
-  count: 50,
+  count: 40,
   age: {
     min: 18,
     max: 65,
@@ -84,7 +84,8 @@ const getBirthDate = (min, max) => {
   const minYear = currentDate.getFullYear() - min;
   const maxYear = currentDate.getFullYear() - max;
 
-  const randomYear = Math.floor(Math.random() * (maxYear - minYear - 1)) + minYear + 1;
+  const randomYear =
+    Math.floor(Math.random() * (maxYear - minYear - 1)) + minYear + 1;
   const randomMonth = Math.floor(Math.random() * 12);
   const randomDay = Math.floor(Math.random() * 31) + 1;
 
@@ -117,14 +118,16 @@ const getWorkload = () => {
   return numbers[randomIndex];
 };
 
-//Funkce pro generování mediánu
-const getMedian = (array) => {
-  array.sort((a, b) => a - b);
-  const midValue = Math.floor(array.length / 2);
+//Funkce pro setřízení obejktu chartData
+const sortChartDataByValue = (chartDataObject) => {
+  const sortedChartDataByValue = {};
+  Object.keys(chartDataObject).forEach((data) => {
+    sortedChartDataByValue[data] = chartDataObject[data].sort(
+      (a, b) => Number(b.value) - Number(a.value)
+    );
+  });
 
-  return array.length % 2 !== 0
-    ? array[midValue]
-    : (array[midValue - 1] + array[midValue]) / 2;
+  return sortedChartDataByValue;
 };
 
 //Funkce pro generování seznamu zaměstnanců
@@ -134,7 +137,7 @@ const generateEmployeeData = (dtoIn) => {
   for (let i = 1; i < dtoIn.count + 1; i++) {
     const newEmployee = {
       gender: getGender(),
-      birthDate: getBirthDate(dtoIn.age.min, dtoIn.age.max),
+      birthdate: getBirthDate(dtoIn.age.min, dtoIn.age.max),
       name: "",
       surname: "",
       workload: getWorkload(),
@@ -147,94 +150,86 @@ const generateEmployeeData = (dtoIn) => {
   return employeeList;
 };
 
-//Funkce pro generování statitisk seznamu zaměstnanců
-const getEmployeeStatistics = (data) => {
-  let minAge = 0,
-    maxAge = 0,
-    averageAge = 0,
-    medianAge = 0,
-    medianWorkload = 0,
-    averageWomenWorkload = 0,
-    ageSum = 0,
-    workloadWomanSum = 0,
-    womanCount = 0,
-    workloadsCount = { 10: 0, 20: 0, 30: 0, 40: 0 };
-
-  const medianAgeArray = [], medianWorkloadArray = [];
-
-    data.forEach((employee, i) => {
-    const employeeAge = currentDate.getFullYear() - Number(employee.birthDate.split("-", 1));
-    
-
-    ageSum += employeeAge;
-    medianAgeArray.push(employeeAge);
-    medianWorkloadArray.push(employee.workload);
-
-    if (employee.gender === "female") {
-      workloadWomanSum += employee.workload;
-      womanCount += 1;
-    }
-
-    //Výpočet minimálního a maximálního věku, pokud jede cyklus poprvé, tak se hodnota přiřadí
-    if (i === 0 || minAge > employeeAge) minAge = employeeAge;
-    if (i === 0 || maxAge < employeeAge) maxAge = employeeAge;
-
-
-    //Pro poslení projití cyklu se vypočítají průměry
-    if (i === data.length - 1) {
-      averageAge = Math.floor((ageSum / data.length) * 10) / 10;
-      averageWomenWorkload = Math.floor(workloadWomanSum / womanCount);
-    }
-
-    workloadsCount[employee.workload] += 1;
-  });
-  
-
-  medianAge = getMedian(medianAgeArray);
-  medianWorkload = getMedian(medianWorkloadArray);
-
-  return {
-    workload10: workloadsCount[10],
-    workload20: workloadsCount[20],
-    workload30: workloadsCount[30],
-    workload40: workloadsCount[40],
-    averageAge,
-    minAge,
-    maxAge,
-    medianAge,
-    medianWorkload,
-    averageWomenWorkload,
-    sortedByWorkload: data.sort((a,b)=> a.workload - b.workload)
+//Funkce pro generování statistik jmen
+const getEmployeeChartContent = (data) => {
+  const names = {
+    all: {},
+    male: {},
+    female: {},
+    femalePartTime: {},
+    maleFullTime: {},
   };
+
+  const chartData = {
+    all: [],
+    male: [],
+    female: [],
+    femalePartTime: [],
+    maleFullTime: [],
+  };
+  data.forEach((emp) => {
+    names.all[emp.name] = (names.all[emp.name] || 0) + 1;
+
+    emp.gender === "male"
+      ? (names.male[emp.name] = (names.male[emp.name] || 0) + 1)
+      : (names.female[emp.name] = (names.female[emp.name] || 0) + 1);
+    emp.gender === "female" &&
+      emp.workload !== 40 &&
+      (names.femalePartTime[emp.name] =
+        (names.femalePartTime[emp.name] || 0) + 1);
+    emp.gender === "male" &&
+      emp.workload === 40 &&
+      (names.maleFullTime[emp.name] = (names.maleFullTime[emp.name] || 0) + 1);
+  });
+
+  for (const [key, value] of Object.entries(names.all)) {
+    chartData.all.push({ label: `${key}`, value: `${value}` });
+  }
+  for (const [key, value] of Object.entries(names.male)) {
+    chartData.male.push({ label: `${key}`, value: `${value}` });
+  }
+  for (const [key, value] of Object.entries(names.female)) {
+    chartData.female.push({ label: `${key}`, value: `${value}` });
+  }
+  for (const [key, value] of Object.entries(names.femalePartTime)) {
+    chartData.femalePartTime.push({ label: `${key}`, value: `${value}` });
+  }
+  for (const [key, value] of Object.entries(names.maleFullTime)) {
+    chartData.maleFullTime.push({ label: `${key}`, value: `${value}` });
+  }
+
+  const sortedChartDataByValue = sortChartDataByValue(chartData);
+  return { names, sortedChartDataByValue };
 };
 
 //Hlavni funkce, která přijímá vstupní data dtoIn a vrací pole zaměstnanců dtoOut
 const main = (dtoIn) => {
   const dtoOut = {
-    total: dtoIn.count,
-    workload10: null,
-    workload20: null,
-    workload30: null,
-    workload40: null,
-    averageAge: null,
-    minAge: null,
-    maxAge: null,
-    medianAge: null,
-    medianWorkload: null,
-    averageWomenWorkload: null,
-    sortedByWorkload: null,
+    names: {
+      all: {},
+      male: {},
+      female: {},
+      femalePartTime: {},
+      maleFullTime: {},
+    },
+    chartData: {
+      all: [],
+      male: [],
+      female: [],
+      femalePartTime: [],
+      maleFullTime: [],
+    },
   };
 
+  //Generates list of employees
   const data = generateEmployeeData(dtoIn);
 
-  const employeeStatistics = getEmployeeStatistics(data);
+  const { names, sortedChartDataByValue } = getEmployeeChartContent(data);
 
-  Object.assign(dtoOut, employeeStatistics)
-
+  Object.assign(dtoOut.names, names);
+  Object.assign(dtoOut.chartData, sortedChartDataByValue);
   return dtoOut;
 };
 
 //Zavolání a vylogování výsledků
 console.log(main(dtoIn));
-
-
