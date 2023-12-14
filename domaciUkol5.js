@@ -126,7 +126,6 @@ const sortChartDataByValue = (chartDataObject) => {
       (a, b) => Number(b.value) - Number(a.value)
     );
   });
-
   return sortedChartDataByValue;
 };
 
@@ -173,12 +172,9 @@ const getEmployeeChartContent = (data) => {
     emp.gender === "male"
       ? (names.male[emp.name] = (names.male[emp.name] || 0) + 1)
       : (names.female[emp.name] = (names.female[emp.name] || 0) + 1);
-    emp.gender === "female" &&
-      emp.workload !== 40 &&
-      (names.femalePartTime[emp.name] =
-        (names.femalePartTime[emp.name] || 0) + 1);
-    emp.gender === "male" &&
-      emp.workload === 40 &&
+    emp.gender === "female" && emp.workload !== 40 &&
+      (names.femalePartTime[emp.name] = (names.femalePartTime[emp.name] || 0) + 1);
+    emp.gender === "male" && emp.workload === 40 &&
       (names.maleFullTime[emp.name] = (names.maleFullTime[emp.name] || 0) + 1);
   });
 
@@ -198,8 +194,13 @@ const getEmployeeChartContent = (data) => {
     chartData.maleFullTime.push({ label: `${key}`, value: `${value}` });
   }
 
-  const sortedChartDataByValue = sortChartDataByValue(chartData);
-  return { names, sortedChartDataByValue };
+  Object.keys(chartData).forEach((data) => {
+    chartData[data] = chartData[data].sort(
+      (a, b) => Number(b.value) - Number(a.value)
+    );
+  });
+
+  return { names, chartData };
 };
 
 //Hlavni funkce, která přijímá vstupní data dtoIn a vrací pole zaměstnanců dtoOut
@@ -224,10 +225,10 @@ const main = (dtoIn) => {
   //Generates list of employees
   const data = generateEmployeeData(dtoIn);
 
-  const { names, sortedChartDataByValue } = getEmployeeChartContent(data);
+  const { names, chartData } = getEmployeeChartContent(data);
 
   Object.assign(dtoOut.names, names);
-  Object.assign(dtoOut.chartData, sortedChartDataByValue);
+  Object.assign(dtoOut.chartData, chartData);
   return dtoOut;
 };
 
