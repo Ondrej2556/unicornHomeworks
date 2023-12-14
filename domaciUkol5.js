@@ -110,7 +110,6 @@ const getName = (gender, type) => {
     ? maleNames[nameIndex][type]
     : femaleNames[nameIndex][type];
 };
-
 //Funkce pro generování náhodného pracovního úvazku
 const getWorkload = () => {
   const numbers = [10, 20, 30, 40];
@@ -118,16 +117,12 @@ const getWorkload = () => {
   return numbers[randomIndex];
 };
 
-//Funkce pro setřízení obejktu chartData
-const sortChartDataByValue = (chartDataObject) => {
-  const sortedChartDataByValue = {};
-  Object.keys(chartDataObject).forEach((data) => {
-    sortedChartDataByValue[data] = chartDataObject[data].sort(
-      (a, b) => Number(b.value) - Number(a.value)
-    );
-  });
-  return sortedChartDataByValue;
-};
+//Funkce pro vytvoření dat pro graf
+const createChartData = (chartDataObject, sourceObject) => {
+  for (const [key, value] of Object.entries(sourceObject)) {
+    chartDataObject.push({ label: `${key}`, value: `${value}` });
+  }
+}
 
 //Funkce pro generování seznamu zaměstnanců
 const generateEmployeeData = (dtoIn) => {
@@ -178,21 +173,9 @@ const getEmployeeChartContent = (data) => {
       (names.maleFullTime[emp.name] = (names.maleFullTime[emp.name] || 0) + 1);
   });
 
-  for (const [key, value] of Object.entries(names.all)) {
-    chartData.all.push({ label: `${key}`, value: `${value}` });
-  }
-  for (const [key, value] of Object.entries(names.male)) {
-    chartData.male.push({ label: `${key}`, value: `${value}` });
-  }
-  for (const [key, value] of Object.entries(names.female)) {
-    chartData.female.push({ label: `${key}`, value: `${value}` });
-  }
-  for (const [key, value] of Object.entries(names.femalePartTime)) {
-    chartData.femalePartTime.push({ label: `${key}`, value: `${value}` });
-  }
-  for (const [key, value] of Object.entries(names.maleFullTime)) {
-    chartData.maleFullTime.push({ label: `${key}`, value: `${value}` });
-  }
+  for (const key of Object.keys(chartData)) {
+    createChartData(chartData[key], names[key]);
+  } 
 
   Object.keys(chartData).forEach((data) => {
     chartData[data] = chartData[data].sort(
